@@ -1,12 +1,47 @@
 
 
 Markers = new Mongo.Collection('markers');
+let paris = {lat: 48.864716, lng: 2.349014};
+
+ // Specify location, radius and place types for your Places API search.
+let request = {
+    location: paris,
+    radius: '5000',
+    types: ['library']
+  };
 
 Template.map.onCreated(function() {
   GoogleMaps.ready('map', function(map) {
+
     google.maps.event.addListener(map.instance, 'click', function(event) {
+        //Meteor.call("checkPlacesNearby", function(error, results) {
+        //console.log(results.content); //results.data should be a JSON object
+        //});
       //Markers.insert({ lat: event.latLng.lat(), lng: event.latLng.lng() });
     });
+
+
+  // Create the PlaceService and send the request.
+  // Handle the callback with an anonymous function.
+    var service = new google.maps.places.PlacesService(map.instance);
+    console.log(request);
+    service.nearbySearch(request, function(results, status) {
+      console.log("waaaaa");
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+          for (var i = 0; i < results.length; i++) {
+            var place = results[i];
+
+            // If the request succeeds, draw the place location on
+            // the map as a marker, and register an event to handle a
+            // click on the marker.
+            var marker = new google.maps.Marker({
+              map: map.instance,
+              position: place.geometry.location
+            });
+          }
+        }
+      });
+
 
     var markers = {};
 
@@ -48,9 +83,11 @@ Meteor.startup(function() {
 Template.map.helpers({
   mapOptions: function() {
     if (GoogleMaps.loaded()) {
+      //paris = new google.maps.LatLng(48.864716, 2.349014)
       return {
-        center: new google.maps.LatLng(48.864716, 2.349014),
-        zoom: 12
+        center: paris,
+        zoom: 12,
+        scrollwheel: false
       };
     }
   }
