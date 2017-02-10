@@ -2,13 +2,13 @@
 
 Markers = new Mongo.Collection('markers');
 let paris = {lat: 48.864716, lng: 2.349014};
+let diderot = {lat: 48.492819, lng: 2.223059};
+let kremlin = {lat: 48.81471, lng: 2.36073};
+let touchplace = {lat: 48.87397066741686, lng: 2.396054267701402};
+let infowindow;
 
- // Specify location, radius and place types for your Places API search.
-let request = {
-    location: paris,
-    radius: '5000',
-    types: ['library']
-  };
+
+
 
 Template.map.onCreated(function() {
   GoogleMaps.ready('map', function(map) {
@@ -18,45 +18,72 @@ Template.map.onCreated(function() {
         //console.log(results.content); //results.data should be a JSON object
         //});
       //Markers.insert({ lat: event.latLng.lat(), lng: event.latLng.lng() });
+      touchplace = {lat: event.latLng.lat(), lng: event.latLng.lng() };
+      console.log(touchplace);
     });
+
+      // Specify location, radius and place types for your Places API search.
+    let request = {
+        location: kremlin,
+        radius: '1100',
+        types: ['cafe'],
+        rankby: google.maps.places.RankBy.PROMINENCE
+      };
 
 
   // Create the PlaceService and send the request.
   // Handle the callback with an anonymous function.
+    infowindow = new google.maps.InfoWindow();
     var service = new google.maps.places.PlacesService(map.instance);
-    console.log(request);
     service.nearbySearch(request, function(results, status) {
-      console.log("waaaaa");
         if (status == google.maps.places.PlacesServiceStatus.OK) {
           for (var i = 0; i < results.length; i++) {
             var place = results[i];
 
-            // If the request succeeds, draw the place location on
-            // the map as a marker, and register an event to handle a
-            // click on the marker.
-            var marker = new google.maps.Marker({
-              map: map.instance,
-              position: place.geometry.location
+            // If the request succeeds, insert the marker into the database
+            // upsert only inserts if place.id doesnt exist yet
+
+            Markers.upsert(
+            
+              //selector
+              place.id
+            , {  
+              //Modifier
+              $set: {
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng(),
+                name: place.name,
+                id: place.id
+              }
             });
           }
         }
       });
 
 
+
     var markers = {};
+
 
     Markers.find().observe({
       added: function (document) {
+        //console.log( new google.maps.LatLng(document.lat, document.lng));
         var marker = new google.maps.Marker({
-          draggable: true,
-          animation: google.maps.Animation.DROP,
+          //animation: google.maps.Animation.DROP,
           position: new google.maps.LatLng(document.lat, document.lng),
           map: map.instance,
-          id: document._id
+          id: document._id,
+          name: document.name
+          //icon: document.icon
         });
 
-        google.maps.event.addListener(marker, 'dragend', function(event) {
-          Markers.update(marker.id, { $set: { lat: event.latLng.lat(), lng: event.latLng.lng() }});
+        //google.maps.event.addListener(marker, 'dragend', function(event) {
+        //  Markers.update(marker.id, { $set: { lat: event.latLng.lat(), lng: event.latLng.lng() }});
+        //});
+
+        google.maps.event.addListener(marker, 'click', function(){
+          infowindow.setContent(marker.name);
+          infowindow.open(map, this);
         });
 
         markers[document._id] = marker;
@@ -86,8 +113,7 @@ Template.map.helpers({
       //paris = new google.maps.LatLng(48.864716, 2.349014)
       return {
         center: paris,
-        zoom: 12,
-        scrollwheel: false
+        zoom: 12
       };
     }
   }
