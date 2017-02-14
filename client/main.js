@@ -12,6 +12,7 @@ let infowindow;
 
 Template.map.onCreated(function() {
   GoogleMaps.ready('map', function(map) {
+    infowindow = new google.maps.InfoWindow();
 
     google.maps.event.addListener(map.instance, 'click', function(event) {
         //Meteor.call("checkPlacesNearby", function(error, results) {
@@ -22,18 +23,19 @@ Template.map.onCreated(function() {
       console.log(touchplace);
     });
 
+
       // Specify location, radius and place types for your Places API search.
     let request = {
-        location: kremlin,
-        radius: '1100',
-        types: ['cafe'],
+        location: paris,
+        radius: '1000',
+        types: ['library','cafe','university'],
         rankby: google.maps.places.RankBy.PROMINENCE
       };
 
 
   // Create the PlaceService and send the request.
   // Handle the callback with an anonymous function.
-    infowindow = new google.maps.InfoWindow();
+    
     var service = new google.maps.places.PlacesService(map.instance);
     service.nearbySearch(request, function(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
@@ -46,14 +48,14 @@ Template.map.onCreated(function() {
             Markers.upsert(
             
               //selector
-              place.id
+              place.place_id
             , {  
               //Modifier
               $set: {
                 lat: place.geometry.location.lat(),
                 lng: place.geometry.location.lng(),
                 name: place.name,
-                id: place.id
+                place_id: place.place_id
               }
             });
           }
@@ -72,7 +74,7 @@ Template.map.onCreated(function() {
           //animation: google.maps.Animation.DROP,
           position: new google.maps.LatLng(document.lat, document.lng),
           map: map.instance,
-          id: document._id,
+          place_id: document.place_id,
           name: document.name
           //icon: document.icon
         });
@@ -80,10 +82,27 @@ Template.map.onCreated(function() {
         //google.maps.event.addListener(marker, 'dragend', function(event) {
         //  Markers.update(marker.id, { $set: { lat: event.latLng.lat(), lng: event.latLng.lng() }});
         //});
-
+        let place_info;
         google.maps.event.addListener(marker, 'click', function(){
-          infowindow.setContent(marker.name);
+          console.log(marker.place_id);
+          infowindow.setContent("");
+          service.getDetails({
+            placeId: marker.place_id
+          }, function(place, status){
+            if (status === google.maps.places.PlacesServiceStatus.OK){
+              console.log(place);
+              place_info= place;
+              infowindow.setContent(
+            "<h2>"+place_info.name+"  </h2>"
+            +"<p>"+ place_info.formatted_address+ "</p>"
+            +"<a href='"+place_info.website+"'> Open Website </a>"
+            );
+            }
+          })
+          
           infowindow.open(map, this);
+
+          
         });
 
         markers[document._id] = marker;
