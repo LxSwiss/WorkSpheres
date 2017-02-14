@@ -5,6 +5,33 @@ let paris = {lat: 48.864716, lng: 2.349014};
 let diderot = {lat: 48.492819, lng: 2.223059};
 let kremlin = {lat: 48.81471, lng: 2.36073};
 let touchplace = {lat: 48.87397066741686, lng: 2.396054267701402};
+
+// LatLng from Arrondisements in Paris
+let arr1= {lat: 48.8592, lng: 2.3417};
+let arr2= {lat: 48.8655, lng: 2.3426};
+let arr3= {lat: 48.8637, lng: 2.3615};
+let arr4= {lat: 48.8601, lng: 2.3507};
+let arr5= {lat: 48.8448, lng: 2.3471};
+let arr6= {lat: 48.8493, lng: 2.33};
+let arr7= {lat: 48.8565, lng: 2.321};
+let arr8= {lat: 48.8763, lng: 2.3183};
+let arr9= {lat: 48.8718, lng: 2.3399};
+let arr10= {lat: 48.8709, lng: 2.3561};
+let arr11= {lat: 48.8574, lng: 2.3795};
+let arr12= {lat: 48.8412, lng: 2.3876};
+let arr13= {lat: 48.8322, lng: 2.3561};
+let arr14= {lat: 48.8331, lng: 2.3264};
+let arr15= {lat: 48.8412, lng: 2.3003};
+let arr16= {lat: 48.8637, lng: 2.2769};
+let arr17= {lat: 48.8835, lng: 2.3219};
+let arr18= {lat: 48.8925, lng: 2.3444};
+let arr19= {lat: 48.8817, lng: 2.3822};
+let arr20= {lat: 48.8646, lng: 2.3984};
+
+
+
+
+
 let infowindow;
 
 
@@ -22,6 +49,8 @@ Template.map.onCreated(function() {
       touchplace = {lat: event.latLng.lat(), lng: event.latLng.lng() };
       console.log(touchplace);
     });
+
+    
 
 
       // Specify location, radius and place types for your Places API search.
