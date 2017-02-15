@@ -3,7 +3,9 @@
 Markers = new Mongo.Collection('markers');
 let paris = {lat: 48.864716, lng: 2.349014};
 let diderot = {lat: 48.492819, lng: 2.223059};
+let francmitterand = {lat: 48.826626, lng: 2.379967};
 let kremlin = {lat: 48.81471, lng: 2.36073};
+let arcdetriomphe = {lat: 48.873792, lng: 2.295028};
 
 // LatLng from Arrondissements in Paris
 let arr1  = {lat: 48.8592, lng: 2.3417};
@@ -27,9 +29,30 @@ let arr18  = {lat: 48.8925, lng: 2.3444};
 let arr19  = {lat: 48.8817, lng: 2.3822};
 let arr20  = {lat: 48.8646, lng: 2.3984};
 
-let arrondissements = [arr1,arr2,arr3,arr4,arr5,arr6,arr7,arr8,arr9,arr10,arr11,arr12,arr13,arr14,arr15,arr16,arr17,arr18,arr19,arr20, kremlin];
+let arrondissements = [arr1,arr2,arr3,arr4,arr5,arr6,arr7,arr8,arr9,arr10,arr11,arr12,arr13,arr14,arr15,arr16,arr17,arr18,arr19,arr20, kremlin, diderot];
 
-
+// styling parameters for google maps
+let  styleArray = [
+    {
+      featureType: 'all',
+      stylers: [
+        { saturation: -80 }
+      ]
+    },{
+      featureType: 'road.arterial',
+      elementType: 'geometry',
+      stylers: [
+        { hue: '#00ffee' },
+        { saturation: 50 }
+      ]
+    },{
+      featureType: 'poi.business',
+      elementType: 'labels',
+      stylers: [
+        { visibility: 'off' }
+      ]
+    }
+  ];
 
 
 
@@ -62,9 +85,9 @@ Template.map.onCreated(function() {
       // Specify location, radius and place types for your Places API search.
         request = {
           location: arrondissement,
-          radius: '1000',
+          radius: '500',
           types: ['library','cafe','university'],
-          rankby: google.maps.places.RankBy.PROMINENCE
+          rankby: google.maps.places.RankBy.DISTANCE
         };
 
           // Create the PlaceService and send the request.
@@ -96,9 +119,9 @@ Template.map.onCreated(function() {
 
       // Specify location, radius and place types for your Places API search.
     request = {
-        location: paris,
+        location: arcdetriomphe,
         radius: '1000',
-        types: ['library','cafe','university'],
+        types: ['library','cafe'],
         rankby: google.maps.places.RankBy.PROMINENCE
       };
 
@@ -109,6 +132,8 @@ Template.map.onCreated(function() {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
           for (var i = 0; i < results.length; i++) {
             var place = results[i];
+
+            console.log("i got results :" + place.name);
 
             // If the request succeeds, insert the marker into the database
             // upsert only inserts if place.id doesnt exist yet
@@ -196,7 +221,8 @@ Template.map.helpers({
       //paris = new google.maps.LatLng(48.864716, 2.349014)
       return {
         center: paris,
-        zoom: 12
+        zoom: 12,
+        styles: styleArray
       };
     }
   }
