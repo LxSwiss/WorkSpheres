@@ -220,9 +220,11 @@ Template.map.helpers({
     if (GoogleMaps.loaded()) {
       //paris = new google.maps.LatLng(48.864716, 2.349014)
       return {
-        center: paris,
-        zoom: 12,
-        styles: styleArray
+        center: arr16,
+        zoom: 13,
+        styles: styleArray,
+        mapTypeControl: false,
+        minZoom: 11
       };
     }
   }

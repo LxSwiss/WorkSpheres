@@ -3,11 +3,20 @@
 </head>
 
 <body>
+	
   {{> map}}
+  {{> menuoverlay}}
 </body>
 
 <template name="map">
   <div class="map-container">
     {{> googleMap name="map" options=mapOptions}}
+  </div>
+</template>
+
+<template name="menuoverlay">
+  <div class="overlaybox">
+  	<h1> Work Spheres </h1>
+    <button type="button">Click Me!</button>
   </div>
 </template>
