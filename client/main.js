@@ -72,11 +72,9 @@ Template.map.onCreated(function() {
         //});
       //Markers.insert({ lat: event.latLng.lat(), lng: event.latLng.lng() });
       touchplace = {lat: event.latLng.lat(), lng: event.latLng.lng() };
-      console.log(touchplace);
     });
 
     let request;
-    console.log(arrondissements[0])
     if(Markers.find().count() < 50  ){
 
       for (var i = 0; i < arrondissements.length; i++){ 
@@ -173,7 +171,6 @@ Template.map.onCreated(function() {
         //});
         let place_info;
         google.maps.event.addListener(marker, 'click', function(){
-          console.log(marker.place_id);
           infowindow.setContent("");
           service.getDetails({
             placeId: marker.place_id
@@ -184,6 +181,9 @@ Template.map.onCreated(function() {
               infowindow.setContent(
             "<h2>"+place_info.name+"  </h2>"
             +"<p>"+ place_info.formatted_address+ "</p>"
+            +"<p>"+ place_info.reviews[0].text+ "</p>"
+            +"<p>"+ place_info.reviews[1].text+ "</p>"
+            +"<p>"+ place_info.reviews[2].text+ "</p>"
             +"<a href='"+place_info.website+"'> Open Website </a>"
             );
             }
