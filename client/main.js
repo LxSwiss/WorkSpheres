@@ -218,7 +218,6 @@ Meteor.startup(function() {
 Template.map.helpers({
   mapOptions: function() {
     if (GoogleMaps.loaded()) {
-      //paris = new google.maps.LatLng(48.864716, 2.349014)
       return {
         center: arr16,
         zoom: 13,
