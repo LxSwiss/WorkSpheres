@@ -223,7 +223,15 @@ Template.map.helpers({
         zoom: 13,
         styles: styleArray,
         mapTypeControl: false,
-        minZoom: 11
+        minZoom: 11,
+        streetViewControl: true,
+        streetViewControlOptions: {
+        position: google.maps.ControlPosition.RIGHT_TOP
+        },
+        zoomControl: true,
+        zoomControlOptions: {
+        position: google.maps.ControlPosition.RIGHT_CENTER
+        }
       };
     }
   }
