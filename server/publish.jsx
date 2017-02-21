@@ -5,3 +5,4 @@ Markers = new Mongo.Collection('markers');
 Meteor.publish("allMarkers", function(){
 	return Markers.find();
 });
+

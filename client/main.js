@@ -66,6 +66,26 @@ Template.map.onCreated(function() {
     infowindow = new google.maps.InfoWindow();
     var service = new google.maps.places.PlacesService(map.instance);
 
+  //Show small dot instead of marker
+    let measleMarkerIcon ={
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor: 'red',
+      fillOpacity: .6,
+      scale: 4.5,
+      strokeColor: 'white',
+      strokeWeight: 1
+    };
+
+  //Show normal marker marker
+    let normalMarkerIcon ={
+      url: "img/markerblue.png", // url
+      scaledSize: new google.maps.Size(50, 50), // scaled size
+      origin: new google.maps.Point(0,0), // origin
+      anchor: new google.maps.Point(0, 0) // anchor
+    };
+
+
+
     google.maps.event.addListener(map.instance, 'click', function(event) {
         //Meteor.call("checkPlacesNearby", function(error, results) {
         //console.log(results.content); //results.data should be a JSON object
@@ -75,7 +95,7 @@ Template.map.onCreated(function() {
     });
 
     let request;
-    if(Markers.find().count() < 50  ){
+    if(Markers.find().count() < 5000  ){
 
       for (var i = 0; i < arrondissements.length; i++){ 
 
@@ -104,7 +124,9 @@ Template.map.onCreated(function() {
                 lat: place.geometry.location.lat(),
                 lng: place.geometry.location.lng(),
                 name: place.name,
-                place_id: place.place_id
+                place_id: place.place_id,
+                upvotes: 0,
+                downvotes: 0
               }
             });
           }
@@ -118,7 +140,7 @@ Template.map.onCreated(function() {
       // Specify location, radius and place types for your Places API search.
     request = {
         location: arcdetriomphe,
-        radius: '1000',
+        radius: '2000',
         types: ['library','cafe'],
         rankby: google.maps.places.RankBy.PROMINENCE
       };
@@ -131,8 +153,6 @@ Template.map.onCreated(function() {
           for (var i = 0; i < results.length; i++) {
             var place = results[i];
 
-            console.log("i got results :" + place.name);
-
             // If the request succeeds, insert the marker into the database
             // upsert only inserts if place.id doesnt exist yet
 
@@ -142,7 +162,9 @@ Template.map.onCreated(function() {
                 lat: place.geometry.location.lat(),
                 lng: place.geometry.location.lng(),
                 name: place.name,
-                place_id: place.place_id
+                place_id: place.place_id,
+                upvotes: 0,
+                downvotes: 0
               }
             });
           }
@@ -156,13 +178,21 @@ Template.map.onCreated(function() {
 
     Markers.find().observe({
       added: function (document) {
-        //console.log( new google.maps.LatLng(document.lat, document.lng));
+        //define score of place
+        let score = Markers.findOne(document._id, {_id:1}).upvotes - Markers.findOne(document._id, {_id:1}).downvotes;
+        let markerIcon = null;
+        if (score <= 0 ){
+          markerIcon = measleMarkerIcon;
+        }
+
+
         var marker = new google.maps.Marker({
           //animation: google.maps.Animation.DROP,
           position: new google.maps.LatLng(document.lat, document.lng),
           map: map.instance,
           place_id: document.place_id,
-          name: document.name
+          name: document.name,
+          icon: markerIcon,
           //icon: document.icon
         });
 
@@ -176,14 +206,15 @@ Template.map.onCreated(function() {
             placeId: marker.place_id
           }, function(place, status){
             if (status === google.maps.places.PlacesServiceStatus.OK){
-              console.log(place);
+              score = Markers.findOne(document._id, {_id:1}).upvotes - Markers.findOne(document._id, {_id:1}).downvotes;
               place_info= place;
               infowindow.setContent(
             "<h2>"+place_info.name+"  </h2>"
+            + "<button type='button' style='width:160px' class='upvotebutton' id='"+document._id +"'>upvote</button>"
+            + "<button type='button' style='width:160px' class='downvotebutton' id='"+document._id +"'>downvote</button>"
+            +"<p>"+ "Score: "+ score + "</p>"
             +"<p>"+ place_info.formatted_address+ "</p>"
             +"<p>"+ place_info.reviews[0].text+ "</p>"
-            +"<p>"+ place_info.reviews[1].text+ "</p>"
-            +"<p>"+ place_info.reviews[2].text+ "</p>"
             +"<a href='"+place_info.website+"'> Open Website </a>"
             );
             }
