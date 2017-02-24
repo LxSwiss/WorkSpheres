@@ -97,7 +97,7 @@ Template.map.onCreated(function() {
     let request;
     if(Markers.find().count() < 500  ){
 
-      for (var i = 0; i < arrondissements.length; i++){ 
+      for (var i = 7; i < arrondissements.length; i++){ 
 
         let arrondissement = arrondissements[i];
       // Specify location, radius and place types for your Places API search.
@@ -105,6 +105,7 @@ Template.map.onCreated(function() {
           location: arrondissement,
           radius: '1000',
           types: ['library','cafe'],
+          keyword: 'wifi',
           rankby: google.maps.places.RankBy.POPULARITY
         };
 
