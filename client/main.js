@@ -115,28 +115,23 @@ Template.map.onCreated(function() {
             for (var i = 0; i < results.length; i++) {
               var place = results[i];
 
+              let tempmarker = {
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng(),
+                    name: place.name,
+                    place_id: place.place_id,
+                  };
 
-
-
-          let tempmarker = {
-                lat: place.geometry.location.lat(),
-                lng: place.geometry.location.lng(),
-                name: place.name,
-                place_id: place.place_id,
-              };
-
-    Meteor.call('addMarker', tempmarker, (err, response)=>{
-      if(err) {
-        Session.set('serverDataResponse', "Error:" + err.reason);
-        return;
-      }
-      Session.set('serverDataResponse', response);
-      }); 
-
+              Meteor.call('addMarker', tempmarker, (err, response)=>{
+                if(err) {
+                  Session.set('serverDataResponse', "Error:" + err.reason);
+                  return;
+                }
+                Session.set('serverDataResponse', response);
+                }); 
+            }
           }
-        }
-      });
-
+        });
       }    
     }
     

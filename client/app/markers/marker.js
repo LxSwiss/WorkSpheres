@@ -2,14 +2,23 @@
   Template.body.events({
     'click .upvotebutton': function (e) {
       e.preventDefault();
-      let currentmarker = Markers.findOne(this.id, {_id:1});
-      let newupvotes = ++currentmarker.upvotes;
-      Markers.update(this.id, {$set: {upvotes: newupvotes}})
+
+      Meteor.call('upvote', this.id, (err, response)=>{
+        if(err) {
+          Session.set('serverDataResponse', "Error:" + err.reason);
+          return;
+        }
+        Session.set('serverDataResponse', response);
+      }); 
     },
     'click .downvotebutton': function (e) {
       e.preventDefault();
-      let currentmarker = Markers.findOne(this.id, {_id:1});
-      let newdownvotes = ++currentmarker.downvotes;
-      Markers.update(this.id, {$set: {downvotes: newdownvotes}});
+      Meteor.call('downvote', this.id, (err, response)=>{
+        if(err) {
+          Session.set('serverDataResponse', "Error:" + err.reason);
+          return;
+        }
+        Session.set('serverDataResponse', response);
+      }); 
     }
   });
