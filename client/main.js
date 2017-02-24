@@ -8,15 +8,15 @@ let kremlin = {lat: 48.81471, lng: 2.36073};
 let arcdetriomphe = {lat: 48.873792, lng: 2.295028};
 
 // LatLng from Arrondissements in Paris
-let arr1  = {lat: 48.8592, lng: 2.3417};
-let arr2  = {lat: 48.8655, lng: 2.3426};
-let arr3  = {lat: 48.8637, lng: 2.3615};
-let arr4  = {lat: 48.8601, lng: 2.3507};
-let arr5  = {lat: 48.8448, lng: 2.3471};
-let arr6  = {lat: 48.8493, lng: 2.33};
-let arr7  = {lat: 48.8565, lng: 2.321};
-let arr8  = {lat: 48.8763, lng: 2.3183};
-let arr9  = {lat: 48.8718, lng: 2.3399};
+let arr1   = {lat: 48.8592, lng: 2.3417};
+let arr2   = {lat: 48.8655, lng: 2.3426};
+let arr3   = {lat: 48.8637, lng: 2.3615};
+let arr4   = {lat: 48.8601, lng: 2.3507};
+let arr5   = {lat: 48.8448, lng: 2.3471};
+let arr6   = {lat: 48.8493, lng: 2.33};
+let arr7   = {lat: 48.8565, lng: 2.321};
+let arr8   = {lat: 48.8763, lng: 2.3183};
+let arr9   = {lat: 48.8718, lng: 2.3399};
 let arr10  = {lat: 48.8709, lng: 2.3561};
 let arr11  = {lat: 48.8574, lng: 2.3795};
 let arr12  = {lat: 48.8412, lng: 2.3876};
@@ -78,8 +78,8 @@ Template.map.onCreated(function() {
 
   //Show normal marker marker
     let normalMarkerIcon ={
-      url: "img/markerblue.png", // url
-      scaledSize: new google.maps.Size(50, 50), // scaled size
+      url: "img/markerblueish.png", // url
+      //scaledSize: new google.maps.Size(30, 40), // scaled size
       origin: new google.maps.Point(0,0), // origin
       anchor: new google.maps.Point(0, 0) // anchor
     };
@@ -95,7 +95,7 @@ Template.map.onCreated(function() {
     });
 
     let request;
-    if(Markers.find().count() < 5000  ){
+    if(Markers.find().count() < 500  ){
 
       for (var i = 0; i < arrondissements.length; i++){ 
 
@@ -103,9 +103,9 @@ Template.map.onCreated(function() {
       // Specify location, radius and place types for your Places API search.
         request = {
           location: arrondissement,
-          radius: '500',
-          types: ['library','cafe','university'],
-          rankby: google.maps.places.RankBy.DISTANCE
+          radius: '1000',
+          types: ['library','cafe'],
+          rankby: google.maps.places.RankBy.POPULARITY
         };
 
           // Create the PlaceService and send the request.
@@ -115,20 +115,24 @@ Template.map.onCreated(function() {
             for (var i = 0; i < results.length; i++) {
               var place = results[i];
 
-            // If the request succeeds, insert the marker into the database
-            // upsert only inserts if place.id doesnt exist yet
 
-            Markers.upsert(place.place_id, {  
-              //Modifier
-              $set: {
+
+
+          let tempmarker = {
                 lat: place.geometry.location.lat(),
                 lng: place.geometry.location.lng(),
                 name: place.name,
                 place_id: place.place_id,
-                upvotes: 0,
-                downvotes: 0
-              }
-            });
+              };
+
+    Meteor.call('addMarker', tempmarker, (err, response)=>{
+      if(err) {
+        Session.set('serverDataResponse', "Error:" + err.reason);
+        return;
+      }
+      Session.set('serverDataResponse', response);
+      }); 
+
           }
         }
       });
@@ -136,7 +140,7 @@ Template.map.onCreated(function() {
       }    
     }
     
-
+/*
       // Specify location, radius and place types for your Places API search.
     request = {
         location: arcdetriomphe,
@@ -162,18 +166,17 @@ Template.map.onCreated(function() {
                 lat: place.geometry.location.lat(),
                 lng: place.geometry.location.lng(),
                 name: place.name,
-                place_id: place.place_id,
-                upvotes: 0,
-                downvotes: 0
+                place_id: place.place_id
               }
             });
           }
         }
       });
 
+*/
 
 
-    var markers = {};
+    var markers =  {};
 
 
     Markers.find().observe({
@@ -181,7 +184,7 @@ Template.map.onCreated(function() {
         //define score of place
         let score = Markers.findOne(document._id, {_id:1}).upvotes - Markers.findOne(document._id, {_id:1}).downvotes;
         let markerIcon = null;
-        if (score <= 0 ){
+        if (score <= -1 ){
           markerIcon = measleMarkerIcon;
         }
 
