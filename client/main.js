@@ -69,11 +69,11 @@ Template.map.onCreated(function() {
   //Show small dot instead of marker
     let measleMarkerIcon ={
       path: google.maps.SymbolPath.CIRCLE,
-      fillColor: 'red',
-      fillOpacity: .6,
-      scale: 4.5,
-      strokeColor: 'white',
-      strokeWeight: 1
+      fillColor: '#e23131',
+      fillOpacity: .9,
+      scale: 3.5,
+      strokeColor: '#303030',
+      strokeWeight: 0.9
     };
 
   //Show normal marker marker
@@ -95,9 +95,9 @@ Template.map.onCreated(function() {
     });
 
     let request;
-    if(Markers.find().count() < 500  ){
+    if(Markers.find().count() < 50  ){
 
-      for (var i = 7; i < arrondissements.length; i++){ 
+      for (var i = 11; i < arrondissements.length; i++){ 
 
         let arrondissement = arrondissements[i];
       // Specify location, radius and place types for your Places API search.
@@ -207,15 +207,18 @@ Template.map.onCreated(function() {
             if (status === google.maps.places.PlacesServiceStatus.OK){
               score = Markers.findOne(document._id, {_id:1}).upvotes - Markers.findOne(document._id, {_id:1}).downvotes;
               place_info= place;
-              infowindow.setContent(
-            "<h2>"+place_info.name+"  </h2>"
+              var photo_url = place_info.photos[0].getUrl({ 'maxWidth': 500, 'maxHeight': 500 });
+              console.log(photo_url);
+
+              let infowindowcontent = "<img src='"+photo_url+"' alt='place_image' style='width:500px;height:300px;'></br>"
+            + "<h2>"+place_info.name+"  </h2>"
             + "<button type='button' style='width:160px' class='upvotebutton' id='"+document._id +"'>upvote</button>"
             + "<button type='button' style='width:160px' class='downvotebutton' id='"+document._id +"'>downvote</button>"
             +"<p>"+ "Score: "+ score + "</p>"
             +"<p>"+ place_info.formatted_address+ "</p>"
-            +"<p>"+ place_info.reviews[0].text+ "</p>"
-            +"<a href='"+place_info.website+"'> Open Website </a>"
-            );
+            +"<a href='"+place_info.website+"'> Open Website </a>" ;
+
+              infowindow.setContent(infowindowcontent);
             }
           })
           
