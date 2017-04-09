@@ -1,11 +1,12 @@
 
-
+let map;
 Markers = new Mongo.Collection('markers');
 let paris = {lat: 48.864716, lng: 2.349014};
 let diderot = {lat: 48.492819, lng: 2.223059};
 let francmitterand = {lat: 48.826626, lng: 2.379967};
 let kremlin = {lat: 48.81471, lng: 2.36073};
 let arcdetriomphe = {lat: 48.873792, lng: 2.295028};
+
 
 // LatLng from Arrondissements in Paris
 let arr1   = {lat: 48.8592, lng: 2.3417};
@@ -85,6 +86,23 @@ Template.map.onCreated(function() {
     };
 
 
+    let searchBox = new google.maps.places.SearchBox(document.getElementById('mapsearch'));
+    
+    google.maps.event.addListener(searchBox, 'places_changed', function(){
+      let places = searchBox.getPlaces();
+
+        var bounds = new google.maps.LatLngBounds();
+        let i, place;
+
+        for(i=0; place=places[i];i++){
+          bounds.extend(place.geometry.location);
+          //marker.setPosition(place.geometry.location);
+        }
+
+        map.fitBounds(bounds);
+        this.map.setZoom(14);
+
+    })
 
     google.maps.event.addListener(map.instance, 'click', function(event) {
         //Meteor.call("checkPlacesNearby", function(error, results) {
@@ -110,7 +128,7 @@ Template.map.onCreated(function() {
         };
 
           // Create the PlaceService and send the request.
-  // Handle the callback with an anonymous function.
+          // Handle the callback with an anonymous function.
         service.nearbySearch(request, function(results, status) {
           if (status == google.maps.places.PlacesServiceStatus.OK) {
             for (var i = 0; i < results.length; i++) {
@@ -135,41 +153,6 @@ Template.map.onCreated(function() {
         });
       }    
     }
-    
-/*
-      // Specify location, radius and place types for your Places API search.
-    request = {
-        location: arcdetriomphe,
-        radius: '2000',
-        types: ['library','cafe'],
-        rankby: google.maps.places.RankBy.PROMINENCE
-      };
-
-
-  // Create the PlaceService and send the request.
-  // Handle the callback with an anonymous function.
-    service.nearbySearch(request, function(results, status) {
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-          for (var i = 0; i < results.length; i++) {
-            var place = results[i];
-
-            // If the request succeeds, insert the marker into the database
-            // upsert only inserts if place.id doesnt exist yet
-
-            Markers.upsert(place.place_id, {  
-              //Modifier
-              $set: {
-                lat: place.geometry.location.lat(),
-                lng: place.geometry.location.lng(),
-                name: place.name,
-                place_id: place.place_id
-              }
-            });
-          }
-        }
-      });
-
-*/
 
 
     var markers =  {};
@@ -273,9 +256,9 @@ Template.map.onCreated(function() {
 
 Meteor.startup(function() {
   GoogleMaps.load({
-  key: 'AIzaSyDIbiOuksYAqtU2z_E1WF4aeF_ov6FvADQ',
-  libraries: 'geometry,places'
-});
+    key: 'AIzaSyDIbiOuksYAqtU2z_E1WF4aeF_ov6FvADQ',
+    libraries: 'geometry,places'
+  });
 });
 
 Template.map.helpers({
