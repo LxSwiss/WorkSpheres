@@ -6,6 +6,7 @@ let diderot = {lat: 48.492819, lng: 2.223059};
 let francmitterand = {lat: 48.826626, lng: 2.379967};
 let kremlin = {lat: 48.81471, lng: 2.36073};
 let arcdetriomphe = {lat: 48.873792, lng: 2.295028};
+searchForNewMarkers = false;
 
 
 // LatLng from Arrondissements in Paris
@@ -113,9 +114,9 @@ Template.map.onCreated(function() {
     });
 
     let request;
-    if(Markers.find().count() < 50  ){
+    if(searchForNewMarkers == true ){
 
-      for (var i = 11; i < arrondissements.length; i++){ 
+      for (var i = 0; i < arrondissements.length; i++){ 
 
         let arrondissement = arrondissements[i];
       // Specify location, radius and place types for your Places API search.
