@@ -88,7 +88,7 @@ Template.map.onCreated(function() {
             //infoWindow.setContent('Location found.');
             map.instance.setCenter(pos);
 
-                //Search for places Nearby
+      //Search for places Nearby
       // Specify location, radius and place types for your Places API search.
         request = {
           location: pos,
@@ -169,8 +169,8 @@ Template.map.onCreated(function() {
           //marker.setPosition(place.geometry.location);
         }
 
-        map.fitBounds(bounds);
-        this.map.setZoom(14);
+        map.instance.fitBounds(bounds);
+        map.instance.setZoom(13);
 
     })
 
@@ -182,6 +182,53 @@ Template.map.onCreated(function() {
 
       infowindow.close();
     });
+
+    google.maps.event.addListener(map.instance, 'center_changed', function(event) {
+        //Meteor.call("checkPlacesNearby", function(error, results) {
+        //console.log(results.content); //results.data should be a JSON object
+        //});
+      //Markers.insert({ lat: event.latLng.lat(), lng: event.latLng.lng() });
+
+      console.log("center changed!");
+
+
+            //Search for places Nearby
+      // Specify location, radius and place types for your Places API search.
+        request = {
+          location: map.instance.getCenter(),
+          radius: '2000',
+          types: ['library','cafe'],
+          keyword: 'wifi',
+          rankby: google.maps.places.RankBy.POPULARITY
+        };
+
+          // Create the PlaceService and send the request.
+          // Handle the callback with an anonymous function.
+        service.nearbySearch(request, function(results, status) {
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            for (var i = 0; i < results.length; i++) {
+              var place = results[i];
+
+
+              let tempmarker = {
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng(),
+                    name: place.name,
+                    place_id: place.place_id,
+                  };
+
+              Meteor.call('addMarker', tempmarker, (err, response)=>{
+                if(err) {
+                  Session.set('serverDataResponse', "Error:" + err.reason);
+                  return;
+                }
+                Session.set('serverDataResponse', response);
+                }); 
+            }
+          }
+        });
+    });
+
 
     let request;
 
