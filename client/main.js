@@ -90,6 +90,43 @@ Template.map.onCreated(function() {
             console.log(map.instance);
             map.instance.setCenter(pos);
 
+                //Search for places Nearby
+      // Specify location, radius and place types for your Places API search.
+        request = {
+          location: pos,
+          radius: '2000',
+          types: ['library','cafe'],
+          keyword: 'wifi',
+          rankby: google.maps.places.RankBy.POPULARITY
+        };
+
+          // Create the PlaceService and send the request.
+          // Handle the callback with an anonymous function.
+        service.nearbySearch(request, function(results, status) {
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            for (var i = 0; i < results.length; i++) {
+              var place = results[i];
+
+              console.log(place);
+
+              let tempmarker = {
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng(),
+                    name: place.name,
+                    place_id: place.place_id,
+                  };
+
+              Meteor.call('addMarker', tempmarker, (err, response)=>{
+                if(err) {
+                  Session.set('serverDataResponse', "Error:" + err.reason);
+                  return;
+                }
+                Session.set('serverDataResponse', response);
+                }); 
+            }
+          }
+        });
+
             
           }, function() {
             handleLocationError(true, infoWindow, map.getCenter());
@@ -149,6 +186,8 @@ Template.map.onCreated(function() {
     });
 
     let request;
+
+    // Search all markers in one place
     if(searchForNewMarkers == true ){
 
       for (var i = 0; i < arrondissements.length; i++){ 
@@ -189,6 +228,8 @@ Template.map.onCreated(function() {
         });
       }    
     }
+
+
 
 
     var markers =  {};
