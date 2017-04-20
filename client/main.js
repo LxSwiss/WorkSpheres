@@ -59,6 +59,15 @@ let  styleArray = [
 
 
 let infowindow;
+let infoWindow;
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+                              'Error: The Geolocation service failed.' :
+                              'Error: Your browser doesn\'t support geolocation.');
+      }
+
 
 
 
@@ -67,6 +76,29 @@ Template.map.onCreated(function() {
   GoogleMaps.ready('map', function(map) {
     infowindow = new google.maps.InfoWindow();
     var service = new google.maps.places.PlacesService(map.instance);
+
+                  // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            console.log(pos);
+            //infoWindow.setPosition(pos);
+            //infoWindow.setContent('Location found.');
+            console.log(map.instance);
+            map.instance.setCenter(pos);
+
+            
+          }, function() {
+            handleLocationError(true, infoWindow, map.getCenter());
+          });
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
+
 
   //Show small dot instead of marker
     let measleMarkerIcon ={
@@ -85,6 +117,9 @@ Template.map.onCreated(function() {
       origin: new google.maps.Point(0,0), // origin
       anchor: new google.maps.Point(0, 0) // anchor
     };
+
+
+
 
 
     let searchBox = new google.maps.places.SearchBox(document.getElementById('mapsearch'));
@@ -263,10 +298,10 @@ Meteor.startup(function() {
 });
 
 Template.map.helpers({
-  mapOptions: function() {
+  mapOptions() {
     if (GoogleMaps.loaded()) {
       return {
-        center: arr16,
+        center: kremlin,
         zoom: 13,
         styles: styleArray,
         mapTypeControl: false,
