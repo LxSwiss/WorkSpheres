@@ -84,10 +84,8 @@ Template.map.onCreated(function() {
               lat: position.coords.latitude,
               lng: position.coords.longitude
             };
-            console.log(pos);
             //infoWindow.setPosition(pos);
             //infoWindow.setContent('Location found.');
-            console.log(map.instance);
             map.instance.setCenter(pos);
 
                 //Search for places Nearby
@@ -107,7 +105,6 @@ Template.map.onCreated(function() {
             for (var i = 0; i < results.length; i++) {
               var place = results[i];
 
-              console.log(place);
 
               let tempmarker = {
                     lat: place.geometry.location.lat(),
@@ -182,7 +179,8 @@ Template.map.onCreated(function() {
         //console.log(results.content); //results.data should be a JSON object
         //});
       //Markers.insert({ lat: event.latLng.lat(), lng: event.latLng.lng() });
-      touchplace = {lat: event.latLng.lat(), lng: event.latLng.lng() };
+
+      infowindow.close();
     });
 
     let request;
@@ -269,13 +267,12 @@ Template.map.onCreated(function() {
               score = Markers.findOne(document._id, {_id:1}).upvotes - Markers.findOne(document._id, {_id:1}).downvotes;
               place_info= place;
               var photo_url = place_info.photos[0].getUrl({ 'maxWidth': 500, 'maxHeight': 500 });
-              console.log(photo_url);
+              
 
               let infowindowcontent = "<img src='"+photo_url+"' alt='place_image' style='width:500px;height:300px;'></br>"
             + "<h2>"+place_info.name+"  </h2>"
-            + "<button type='button' style='width:160px' class='upvotebutton' id='"+document._id +"'>upvote</button>"
-            + "<button type='button' style='width:160px' class='downvotebutton' id='"+document._id +"'>downvote</button>"
-            +"<p>"+ "Score: "+ score + "</p>"
+            
+            
             +"<p>"+ place_info.formatted_address+ "</p>"
             +"<a href='"+place_info.website+"'> Open Website </a>" ;
 
