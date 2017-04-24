@@ -1,6 +1,7 @@
 
 let map;
 Markers = new Mongo.Collection('markers');
+let nbsearchmarkers;
 let paris = {lat: 48.864716, lng: 2.349014};
 let diderot = {lat: 48.492819, lng: 2.223059};
 let francmitterand = {lat: 48.826626, lng: 2.379967};
@@ -78,60 +79,24 @@ Template.map.onCreated(function() {
     var service = new google.maps.places.PlacesService(map.instance);
 
                   // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-            //infoWindow.setPosition(pos);
-            //infoWindow.setContent('Location found.');
-            map.instance.setCenter(pos);
-
-      //Search for places Nearby
-      // Specify location, radius and place types for your Places API search.
-        request = {
-          location: pos,
-          radius: '2000',
-          types: ['library','cafe'],
-          keyword: 'wifi',
-          rankby: google.maps.places.RankBy.POPULARITY
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
         };
+        //infoWindow.setPosition(pos);
+        //infoWindow.setContent('Location found.');
+        map.instance.setCenter(pos);
 
-          // Create the PlaceService and send the request.
-          // Handle the callback with an anonymous function.
-        service.nearbySearch(request, function(results, status) {
-          if (status == google.maps.places.PlacesServiceStatus.OK) {
-            for (var i = 0; i < results.length; i++) {
-              var place = results[i];
-
-
-              let tempmarker = {
-                    lat: place.geometry.location.lat(),
-                    lng: place.geometry.location.lng(),
-                    name: place.name,
-                    place_id: place.place_id,
-                  };
-
-              Meteor.call('addMarker', tempmarker, (err, response)=>{
-                if(err) {
-                  Session.set('serverDataResponse', "Error:" + err.reason);
-                  return;
-                }
-                Session.set('serverDataResponse', response);
-                }); 
-            }
-          }
-        });
-
-            
-          }, function() {
-            handleLocationError(true, infoWindow, map.getCenter());
-          });
-        } else {
-          // Browser doesn't support Geolocation
-          handleLocationError(false, infoWindow, map.getCenter());
-        }
+        
+      }, function() {
+        handleLocationError(true, infoWindow, map.getCenter());
+      });
+    } else {
+      // Browser doesn't support Geolocation
+      handleLocationError(false, infoWindow, map.getCenter());
+    }
 
 
   //Show small dot instead of marker
@@ -209,13 +174,63 @@ Template.map.onCreated(function() {
             for (var i = 0; i < results.length; i++) {
               var place = results[i];
 
-
               let tempmarker = {
-                    lat: place.geometry.location.lat(),
-                    lng: place.geometry.location.lng(),
-                    name: place.name,
-                    place_id: place.place_id,
-                  };
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng(),
+                name: place.name,
+                place_id: place.place_id,
+              };
+
+                //Set directly as Marker
+                console.log(place.name);
+              var marker = new google.maps.Marker({
+                //animation: google.maps.Animation.DROP,
+                position: new google.maps.LatLng(tempmarker.lat, tempmarker.lng),
+                map: map.instance,
+                place_id: place.place_id,
+                name: place.name
+                //icon: document.icon
+              });
+
+               let place_info;
+
+              google.maps.event.addListener(place, 'click', function(){
+                map.instance.setZoom(14);
+                map.instance.setCenter(marker.getPosition());
+                infowindow.setContent("");
+
+                service.getDetails({
+                  placeId: marker.place_id
+                }, function(place, status){
+                  if (status === google.maps.places.PlacesServiceStatus.OK){
+                    //score = Markers.findOne(document._id, {_id:1}).upvotes - Markers.findOne(document._id, {_id:1}).downvotes;
+                    place_info= place;
+                    console.log("infobox clicked:  "+place_info.name)
+                    var photo_url = place_info.photos[0].getUrl({ 'maxWidth': 500, 'maxHeight': 500 });
+                    
+
+                    let infowindowcontent = "<img src='"+photo_url+"' alt='place_image' style='width:500px;height:300px;'></br>"
+                  + "<h2>"+place_info.name+"  </h2>"
+                  
+                  
+                  +"<p>"+ place_info.formatted_address+ "</p>"
+                  +"<a href='"+place_info.website+"'> Open Website </a>" ;
+
+                    infowindow.setContent(infowindowcontent);
+                  }
+                })
+                
+                infowindow.open(map, this);
+
+                
+              });
+
+
+             
+
+              /* 
+              // save in Database
+
 
               Meteor.call('addMarker', tempmarker, (err, response)=>{
                 if(err) {
@@ -224,6 +239,8 @@ Template.map.onCreated(function() {
                 }
                 Session.set('serverDataResponse', response);
                 }); 
+
+              */
             }
           }
         });
@@ -304,7 +321,7 @@ Template.map.onCreated(function() {
         //  Markers.update(marker.id, { $set: { lat: event.latLng.lat(), lng: event.latLng.lng() }});
         //});
         let place_info;
-
+/*
         google.maps.event.addListener(marker, 'click', function(){
           infowindow.setContent("");
           service.getDetails({
@@ -331,7 +348,7 @@ Template.map.onCreated(function() {
 
           
         });
-
+*/
 
         /*
          * The google.maps.event.addListener() event waits for
